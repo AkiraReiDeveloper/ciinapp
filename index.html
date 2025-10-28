@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Control de Acceso | CIIN 2025</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -338,6 +335,10 @@
             opacity: 0.4;
             cursor: not-allowed;
             transform: none !important;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         .access-section {
@@ -709,317 +710,377 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-
-        function App() {
-            const [scanning, setScanning] = useState(false);
-            const [accessList, setAccessList] = useState([]);
-            const [showList, setShowList] = useState(false);
-            const [modalData, setModalData] = useState(null);
-            const scannerRef = useRef(null);
-
-            useEffect(() => {
-                return () => {
-                    if (scannerRef.current) {
-                        scannerRef.current.stop().catch(console.error);
-                    }
-                };
-            }, []);
-
-            const validateQRData = (data) => {
-                try {
-                    const parsed = JSON.parse(data);
-                    if (parsed.id && parsed.nombre) {
-                        return { valid: true, data: parsed };
-                    }
-                    return { valid: false, error: 'El código QR no contiene los datos requeridos (id y nombre)' };
-                } catch (e) {
-                    return { valid: false, error: 'El código QR no tiene un formato válido' };
-                }
-            };
-
-            const startScanning = () => {
-                const html5QrCode = new Html5Qrcode("reader");
-                scannerRef.current = html5QrCode;
-
-                const config = { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                };
-
-                html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    (decodedText) => {
-                        const validation = validateQRData(decodedText);
-                        
-                        if (validation.valid) {
-                            const now = new Date();
-                            const accessData = {
-                                ...validation.data,
-                                timestamp: now.toISOString(),
-                                time: now.toLocaleTimeString('es-MX', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit',
-                                    second: '2-digit'
-                                }),
-                                date: now.toLocaleDateString('es-MX', {
-                                    day: '2-digit',
-                                    month: 'short'
-                                })
-                            };
-
-                            setAccessList(prev => [accessData, ...prev]);
-                            setModalData({
-                                type: 'success',
-                                data: accessData
-                            });
-
-                            html5QrCode.pause(true);
-                            setTimeout(() => {
-                                if (scannerRef.current) {
-                                    html5QrCode.resume();
-                                }
-                            }, 2500);
-                        } else {
-                            setModalData({
-                                type: 'error',
-                                message: validation.error
-                            });
-                            html5QrCode.pause(true);
-                            setTimeout(() => {
-                                if (scannerRef.current) {
-                                    html5QrCode.resume();
-                                }
-                            }, 2000);
-                        }
-                    },
-                    () => {}
-                ).then(() => {
-                    setScanning(true);
-                }).catch((err) => {
-                    console.error("Error:", err);
-                    alert("No se pudo acceder a la cámara. Verifica los permisos.");
-                });
-            };
-
-            const stopScanning = () => {
-                if (scannerRef.current) {
-                    scannerRef.current.stop().then(() => {
-                        setScanning(false);
-                        scannerRef.current = null;
-                    }).catch(console.error);
-                }
-            };
-
-            const closeModal = () => {
-                setModalData(null);
-            };
-
-            const clearList = () => {
-                if (window.confirm('¿Deseas eliminar todos los registros?')) {
-                    setAccessList([]);
-                }
-            };
-
-            const getInitials = (name) => {
-                const parts = name.trim().split(' ');
-                if (parts.length >= 2) {
-                    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-                }
-                return name.substring(0, 2).toUpperCase();
-            };
-
-            return (
-                <div className="app">
-                    <header className="app-header">
-                        <div className="header-top">
-                            <div className="header-logo-section">
-                                <div className="logo-circle">
-                                    <div className="logo-dna">🧬</div>
-                                </div>
-                                <div className="header-title">
-                                    <h1>Control de Acceso</h1>
-                                    <p>Congreso Internacional Innovación Nutricional</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="header-stats">
-                            <div className="stat-mini">
-                                <div className="stat-mini-value">{accessList.length}</div>
-                                <div className="stat-mini-label">Registros</div>
-                            </div>
-                            <div className="stat-mini">
-                                <div className="stat-mini-value">
-                                    {scanning ? '●' : '○'}
-                                </div>
-                                <div className="stat-mini-label">Estado</div>
-                            </div>
-                            <div className="stat-mini">
-                                <div className="stat-mini-value">
-                                    {accessList[0]?.time.slice(0, 5) || '--:--'}
-                                </div>
-                                <div className="stat-mini-label">Último</div>
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="scanner-container">
-                        <div className="scanner-card">
-                            <div className="scanner-header">
-                                <div className={`scanner-status-badge ${scanning ? 'active' : 'inactive'}`}>
-                                    <div className="status-indicator"></div>
-                                    {scanning ? 'Escáner Activo' : 'Listo para Escanear'}
-                                </div>
-                                <h2>Escaneo de Credenciales</h2>
-                                <p>Apunta la cámara hacia el código QR del gafete</p>
-                            </div>
-
-                            <div className="scanner-body">
-                                {!scanning ? (
-                                    <div className="scanner-placeholder">
-                                        <div className="placeholder-icon">📱</div>
-                                        <div className="placeholder-text">Cámara Inactiva</div>
-                                        <div className="placeholder-subtext">
-                                            Presiona el botón para iniciar el escaneo
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="camera-wrapper">
-                                        <div id="reader"></div>
-                                        <div className="camera-overlay">
-                                            <div className="camera-corner tl"></div>
-                                            <div className="camera-corner tr"></div>
-                                            <div className="camera-corner bl"></div>
-                                            <div className="camera-corner br"></div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="scanner-controls">
-                                    {!scanning ? (
-                                        <button className="btn btn-primary" onClick={startScanning}>
-                                            <span>📸</span>
-                                            Activar Escáner
-                                        </button>
-                                    ) : (
-                                        <button className="btn btn-secondary" onClick={stopScanning}>
-                                            <span>⏹</span>
-                                            Detener
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="access-section">
-                            <div className="access-header" onClick={() => setShowList(!showList)}>
-                                <div className="access-header-left">
-                                    <div className="access-icon">📋</div>
-                                    <div className="access-title-block">
-                                        <h3>Registro de Accesos</h3>
-                                        <div className="access-subtitle">Historial de escaneos</div>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <div className="access-badge">{accessList.length}</div>
-                                    <div className={`chevron ${showList ? 'open' : ''}`}>▼</div>
-                                </div>
-                            </div>
-
-                            <div className={`access-content ${showList ? 'open' : ''}`}>
-                                {accessList.length === 0 ? (
-                                    <div className="empty-state">
-                                        <div className="empty-icon">📭</div>
-                                        <div className="empty-text">No hay registros</div>
-                                        <div className="empty-subtext">
-                                            Los accesos escaneados aparecerán aquí
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="access-list">
-                                            {accessList.map((access, index) => (
-                                                <div key={index} className="access-item">
-                                                    <div className="access-avatar">
-                                                        {getInitials(access.nombre)}
-                                                    </div>
-                                                    <div className="access-info">
-                                                        <div className="access-name">{access.nombre}</div>
-                                                        <div className="access-id">ID: {access.id}</div>
-                                                    </div>
-                                                    <div className="access-time-block">
-                                                        <div className="access-time">{access.time}</div>
-                                                        <div className="access-date">{access.date}</div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="list-actions">
-                                            <button className="btn btn-secondary" onClick={clearList}>
-                                                <span>🗑️</span>
-                                                Limpiar Registros
-                                            </button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </main>
-
-                    {modalData && (
-                        <div className="modal-overlay" onClick={closeModal}>
-                            <div className="modal" onClick={(e) => e.stopPropagation()}>
-                                {modalData.type === 'success' ? (
-                                    <>
-                                        <div className="modal-icon-wrapper success">
-                                            <div className="modal-icon success">✓</div>
-                                        </div>
-                                        <h2 className="modal-title">¡Acceso Registrado!</h2>
-                                        <div className="modal-body">
-                                            <div className="modal-user-card">
-                                                <div className="modal-user-name">
-                                                    {modalData.data.nombre}
-                                                </div>
-                                                <div className="modal-user-id">
-                                                    ID: {modalData.data.id}
-                                                </div>
-                                            </div>
-                                            <div className="modal-message">
-                                                Registro completado exitosamente
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="modal-icon-wrapper error">
-                                            <div className="modal-icon error">✕</div>
-                                        </div>
-                                        <h2 className="modal-title">Código No Válido</h2>
-                                        <div className="modal-body">
-                                            <div className="modal-message">
-                                                {modalData.message}
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                                <div className="modal-actions">
-                                    <button className="btn btn-primary" onClick={closeModal}>
-                                        Continuar Escaneando
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+    <div class="app">
+        <header class="app-header">
+            <div class="header-top">
+                <div class="header-logo-section">
+                    <div class="logo-circle">
+                        <div class="logo-dna">🧬</div>
+                    </div>
+                    <div class="header-title">
+                        <h1>Control de Acceso</h1>
+                        <p>Congreso Internacional Innovación Nutricional</p>
+                    </div>
                 </div>
-            );
+            </div>
+            <div class="header-stats">
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="totalRegistros">0</div>
+                    <div class="stat-mini-label">Registros</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="estadoIndicador">○</div>
+                    <div class="stat-mini-label">Estado</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="ultimoAcceso">--:--</div>
+                    <div class="stat-mini-label">Último</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="scanner-container">
+            <div class="scanner-card">
+                <div class="scanner-header">
+                    <div class="scanner-status-badge inactive" id="statusBadge">
+                        <div class="status-indicator"></div>
+                        <span id="statusText">Listo para Escanear</span>
+                    </div>
+                    <h2>Escaneo de Credenciales</h2>
+                    <p>Apunta la cámara hacia el código QR del gafete</p>
+                </div>
+
+                <div class="scanner-body">
+                    <div class="scanner-placeholder" id="placeholder">
+                        <div class="placeholder-icon">📱</div>
+                        <div class="placeholder-text">Cámara Inactiva</div>
+                        <div class="placeholder-subtext">
+                            Presiona el botón para iniciar el escaneo
+                        </div>
+                    </div>
+
+                    <div class="camera-wrapper hidden" id="cameraWrapper">
+                        <div id="reader"></div>
+                        <div class="camera-overlay">
+                            <div class="camera-corner tl"></div>
+                            <div class="camera-corner tr"></div>
+                            <div class="camera-corner bl"></div>
+                            <div class="camera-corner br"></div>
+                        </div>
+                    </div>
+
+                    <div class="scanner-controls">
+                        <button class="btn btn-primary" id="btnStart">
+                            <span>📸</span>
+                            Activar Escáner
+                        </button>
+                        <button class="btn btn-secondary hidden" id="btnStop">
+                            <span>⏹</span>
+                            Detener
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="access-section">
+                <div class="access-header" id="accessHeader">
+                    <div class="access-header-left">
+                        <div class="access-icon">📋</div>
+                        <div class="access-title-block">
+                            <h3>Registro de Accesos</h3>
+                            <div class="access-subtitle">Historial de escaneos</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="access-badge" id="accessCount">0</div>
+                        <div class="chevron" id="chevron">▼</div>
+                    </div>
+                </div>
+
+                <div class="access-content" id="accessContent">
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">No hay registros</div>
+                        <div class="empty-subtext">
+                            Los accesos escaneados aparecerán aquí
+                        </div>
+                    </div>
+                    <div class="access-list hidden" id="accessList"></div>
+                    <div class="list-actions hidden" id="listActions">
+                        <button class="btn btn-secondary" id="btnClear">
+                            <span>🗑️</span>
+                            Limpiar Registros
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-icon-wrapper" id="modalIconWrapper">
+                <div class="modal-icon" id="modalIcon"></div>
+            </div>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="btnCloseModal">
+                    Continuar Escaneando
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let html5QrCode = null;
+        let scanning = false;
+        let accessList = [];
+        let listOpen = false;
+
+        // Elementos del DOM
+        const btnStart = document.getElementById('btnStart');
+        const btnStop = document.getElementById('btnStop');
+        const btnClear = document.getElementById('btnClear');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        const accessHeader = document.getElementById('accessHeader');
+        const placeholder = document.getElementById('placeholder');
+        const cameraWrapper = document.getElementById('cameraWrapper');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const accessContent = document.getElementById('accessContent');
+        const chevron = document.getElementById('chevron');
+        const emptyState = document.getElementById('emptyState');
+        const accessListEl = document.getElementById('accessList');
+        const listActions = document.getElementById('listActions');
+        const accessCount = document.getElementById('accessCount');
+        const totalRegistros = document.getElementById('totalRegistros');
+        const estadoIndicador = document.getElementById('estadoIndicador');
+        const ultimoAcceso = document.getElementById('ultimoAcceso');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const modalIconWrapper = document.getElementById('modalIconWrapper');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        // Función para validar QR
+        function validateQRData(data) {
+            try {
+                const parsed = JSON.parse(data);
+                if (parsed.id && parsed.nombre) {
+                    return { valid: true, data: parsed };
+                }
+                return { valid: false, error: 'El código QR no contiene los datos requeridos (id y nombre)' };
+            } catch (e) {
+                return { valid: false, error: 'El código QR no tiene un formato válido' };
+            }
         }
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        // Función para obtener iniciales
+        function getInitials(name) {
+            const parts = name.trim().split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        // Función para iniciar escaneo
+        function startScanning() {
+            html5QrCode = new Html5Qrcode("reader");
+
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    const validation = validateQRData(decodedText);
+
+                    if (validation.valid) {
+                        const now = new Date();
+                        const accessData = {
+                            ...validation.data,
+                            timestamp: now.toISOString(),
+                            time: now.toLocaleTimeString('es-MX', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            }),
+                            date: now.toLocaleDateString('es-MX', {
+                                day: '2-digit',
+                                month: 'short'
+                            })
+                        };
+
+                        accessList.unshift(accessData);
+                        updateUI();
+                        showModal('success', accessData);
+
+                        html5QrCode.pause(true);
+                        setTimeout(() => {
+                            if (html5QrCode) {
+                                html5QrCode.resume();
+                            }
+                        }, 2500);
+                    } else {
+                        showModal('error', null, validation.error);
+                        html5QrCode.pause(true);
+                        setTimeout(() => {
+                            if (html5QrCode) {
+                                html5QrCode.resume();
+                            }
+                        }, 2000);
+                    }
+                },
+                () => {}
+            ).then(() => {
+                scanning = true;
+                placeholder.classList.add('hidden');
+                cameraWrapper.classList.remove('hidden');
+                btnStart.classList.add('hidden');
+                btnStop.classList.remove('hidden');
+                statusBadge.classList.remove('inactive');
+                statusBadge.classList.add('active');
+                statusText.textContent = 'Escáner Activo';
+                estadoIndicador.textContent = '●';
+            }).catch((err) => {
+                console.error("Error:", err);
+                alert("No se pudo acceder a la cámara. Verifica los permisos.");
+            });
+        }
+
+        // Función para detener escaneo
+        function stopScanning() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    scanning = false;
+                    placeholder.classList.remove('hidden');
+                    cameraWrapper.classList.add('hidden');
+                    btnStart.classList.remove('hidden');
+                    btnStop.classList.add('hidden');
+                    statusBadge.classList.remove('active');
+                    statusBadge.classList.add('inactive');
+                    statusText.textContent = 'Listo para Escanear';
+                    estadoIndicador.textContent = '○';
+                    html5QrCode = null;
+                }).catch(console.error);
+            }
+        }
+
+        // Función para actualizar UI
+        function updateUI() {
+            totalRegistros.textContent = accessList.length;
+            accessCount.textContent = accessList.length;
+
+            if (accessList.length > 0) {
+                ultimoAcceso.textContent = accessList[0].time.slice(0, 5);
+                emptyState.classList.add('hidden');
+                accessListEl.classList.remove('hidden');
+                listActions.classList.remove('hidden');
+                renderAccessList();
+            } else {
+                ultimoAcceso.textContent = '--:--';
+                emptyState.classList.remove('hidden');
+                accessListEl.classList.add('hidden');
+                listActions.classList.add('hidden');
+            }
+        }
+
+        // Función para renderizar lista de accesos
+        function renderAccessList() {
+            accessListEl.innerHTML = '';
+            accessList.forEach((access) => {
+                const item = document.createElement('div');
+                item.className = 'access-item';
+                item.innerHTML = `
+                    <div class="access-avatar">${getInitials(access.nombre)}</div>
+                    <div class="access-info">
+                        <div class="access-name">${access.nombre}</div>
+                        <div class="access-id">ID: ${access.id}</div>
+                    </div>
+                    <div class="access-time-block">
+                        <div class="access-time">${access.time}</div>
+                        <div class="access-date">${access.date}</div>
+                    </div>
+                `;
+                accessListEl.appendChild(item);
+            });
+        }
+
+        // Función para mostrar modal
+        function showModal(type, data, message) {
+            modalOverlay.classList.remove('hidden');
+
+            if (type === 'success') {
+                modalIconWrapper.className = 'modal-icon-wrapper success';
+                modalIcon.className = 'modal-icon success';
+                modalIcon.textContent = '✓';
+                modalTitle.textContent = '¡Acceso Registrado!';
+                modalBody.innerHTML = `
+                    <div class="modal-user-card">
+                        <div class="modal-user-name">${data.nombre}</div>
+                        <div class="modal-user-id">ID: ${data.id}</div>
+                    </div>
+                    <div class="modal-message">Registro completado exitosamente</div>
+                `;
+            } else {
+                modalIconWrapper.className = 'modal-icon-wrapper error';
+                modalIcon.className = 'modal-icon error';
+                modalIcon.textContent = '✕';
+                modalTitle.textContent = 'Código No Válido';
+                modalBody.innerHTML = `
+                    <div class="modal-message">${message}</div>
+                `;
+            }
+        }
+
+        // Función para cerrar modal
+        function closeModal() {
+            modalOverlay.classList.add('hidden');
+        }
+
+        // Función para toggle lista
+        function toggleList() {
+            listOpen = !listOpen;
+            if (listOpen) {
+                accessContent.classList.add('open');
+                chevron.classList.add('open');
+            } else {
+                accessContent.classList.remove('open');
+                chevron.classList.remove('open');
+            }
+        }
+
+        // Función para limpiar lista
+        function clearList() {
+            if (confirm('¿Deseas eliminar todos los registros?')) {
+                accessList = [];
+                updateUI();
+            }
+        }
+
+        // Event listeners
+        btnStart.addEventListener('click', startScanning);
+        btnStop.addEventListener('click', stopScanning);
+        btnClear.addEventListener('click', clearList);
+        btnCloseModal.addEventListener('click', closeModal);
+        accessHeader.addEventListener('click', toggleList);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        // Inicializar UI
+        updateUI();
     </script>
 </body>
 </html>
