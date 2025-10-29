@@ -23,6 +23,9 @@
             --border-color: #2d363f;
             --success: #10b981;
             --error: #ef4444;
+            --warning: #f59e0b;
+            --entrada: #3b82f6;
+            --salida: #8b5cf6;
         }
 
         * {
@@ -35,41 +38,44 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-dark);
-            min-height: 100vh;
+            height: 100vh;
             color: var(--text-primary);
-            overflow-x: hidden;
+            overflow: hidden;
             -webkit-font-smoothing: antialiased;
+            position: relative;
         }
 
         .app {
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
+        /* HEADER */
         .app-header {
             background: linear-gradient(135deg, var(--primary-teal) 0%, var(--dark-teal) 100%);
             padding: 0;
-            position: sticky;
-            top: 0;
             z-index: 100;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
         }
 
         .header-top {
-            padding: 20px 24px 16px;
+            padding: 14px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .header-logo-section {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .logo-circle {
-            width: 56px;
-            height: 56px;
+            width: 44px;
+            height: 44px;
             background: white;
             border-radius: 50%;
             display: flex;
@@ -79,26 +85,26 @@
         }
 
         .logo-dna {
-            font-size: 32px;
+            font-size: 26px;
         }
 
         .header-title h1 {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 800;
             letter-spacing: -0.5px;
             margin-bottom: 2px;
         }
 
         .header-title p {
-            font-size: 13px;
+            font-size: 11px;
             opacity: 0.85;
             font-weight: 500;
         }
 
         .header-stats {
             display: flex;
-            gap: 20px;
-            padding: 12px 24px;
+            gap: 16px;
+            padding: 10px 20px;
         }
 
         .stat-mini {
@@ -107,7 +113,7 @@
         }
 
         .stat-mini-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 800;
             color: var(--light-green);
             line-height: 1;
@@ -115,108 +121,338 @@
         }
 
         .stat-mini-label {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             opacity: 0.7;
             font-weight: 600;
         }
 
+        /* MAIN CONTAINER */
         .scanner-container {
             flex: 1;
-            padding: 24px;
-        }
-
-        .scanner-card {
-            background: var(--bg-card);
-            border-radius: 24px;
+            padding: 0;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-        }
-
-        .scanner-header {
-            padding: 24px 24px 20px;
-            background: var(--bg-elevated);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .scanner-status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .scanner-status-badge.inactive {
-            background: rgba(107, 114, 128, 0.2);
-            color: var(--text-secondary);
-        }
-
-        .scanner-status-badge.active {
-            background: rgba(122, 159, 53, 0.2);
-            color: var(--light-green);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .scanner-header h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .scanner-header p {
-            font-size: 14px;
-            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
         .scanner-body {
-            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            padding-top: 100px;
+            padding-bottom: 100px;
         }
 
+        /* FLOATING CONFIG CARD - MÁS COMPACTO */
+        .floating-config-card {
+            position: fixed;
+            left: 16px;
+            right: 96px;
+            top: 156px;
+            background: rgba(20, 27, 34, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 8px 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            z-index: 150;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .floating-config-card.minimized {
+            cursor: pointer;
+        }
+
+        .floating-config-card.expanded {
+            left: 20px;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            z-index: 1100;
+            max-height: 75vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .config-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1050;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .config-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 0;
+        }
+
+        .config-header.expanded {
+            margin-bottom: 16px;
+        }
+
+        .config-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .config-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .config-header-title {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .config-header-title h3 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .config-header-title.expanded h3 {
+            font-size: 18px;
+            white-space: normal;
+        }
+
+        .config-header-subtitle {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .config-toggle-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .config-toggle-btn:hover {
+            background: var(--primary-teal);
+            transform: scale(1.1);
+        }
+
+        .config-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .config-body.expanded {
+            max-height: 500px;
+        }
+
+        .config-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-select {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23b4bcc5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(122, 159, 53, 0.1);
+        }
+
+        .toggle-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .toggle-option {
+            position: relative;
+        }
+
+        .toggle-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 12px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .toggle-option input[type="radio"]:checked + .toggle-label.entrada-label {
+            background: linear-gradient(135deg, var(--entrada) 0%, #60a5fa 100%);
+            border-color: var(--entrada);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .toggle-option input[type="radio"]:checked + .toggle-label.salida-label {
+            background: linear-gradient(135deg, var(--salida) 0%, #a78bfa 100%);
+            border-color: var(--salida);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .toggle-label:hover {
+            border-color: var(--primary-green);
+            transform: translateY(-1px);
+        }
+
+        /* STATUS INDICATOR CIRCULAR - CONSISTENTE */
+        .floating-status-indicator {
+            position: fixed;
+            right: 16px;
+            top: 156px;
+            background: linear-gradient(135deg, var(--entrada) 0%, #60a5fa 100%);
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+            z-index: 85;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-status-indicator:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.6);
+        }
+
+        .floating-status-indicator:active {
+            transform: scale(0.95);
+        }
+
+        .floating-status-indicator span:first-child {
+            font-size: 30px;
+            line-height: 1;
+        }
+
+        .floating-status-indicator span:last-child {
+            font-size: 10px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .floating-status-indicator.salida {
+            background: linear-gradient(135deg, var(--salida) 0%, #a78bfa 100%);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5);
+        }
+
+        .floating-status-indicator.salida:hover {
+            box-shadow: 0 12px 32px rgba(139, 92, 246, 0.6);
+        }
+
+        /* CAMERA AREA */
         .camera-wrapper {
             position: relative;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
             background: #000;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-            min-height: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #reader {
             width: 100%;
+            height: 100%;
             border: none;
-            min-height: 400px;
         }
 
         #reader video {
-            border-radius: 16px;
+            border-radius: 20px;
             width: 100% !important;
-            height: auto !important;
-        }
-
-        #reader__scan_region {
-            width: 100% !important;
-        }
-
-        #reader__dashboard {
-            border-radius: 0 0 16px 16px;
+            height: 100% !important;
+            object-fit: cover;
         }
 
         .camera-overlay {
@@ -232,7 +468,7 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            border: 3px solid var(--light-green);
+            border: 4px solid var(--light-green);
         }
 
         .camera-corner.tl {
@@ -264,29 +500,29 @@
         }
 
         .scanner-placeholder {
-            aspect-ratio: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
             border: 2px dashed var(--border-color);
-            border-radius: 16px;
-            padding: 40px;
+            border-radius: 20px;
+            padding: 40px 20px;
             text-align: center;
+            flex: 1;
         }
 
         .placeholder-icon {
             font-size: 72px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             opacity: 0.3;
         }
 
         .placeholder-text {
             font-size: 16px;
             color: var(--text-secondary);
-            margin-bottom: 8px;
-            font-weight: 500;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .placeholder-subtext {
@@ -294,32 +530,34 @@
             color: var(--text-muted);
         }
 
+        /* BUTTONS */
         .scanner-controls {
-            margin-top: 24px;
+            margin-top: 16px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
+            flex-shrink: 0;
         }
 
         .btn {
             flex: 1;
-            padding: 16px 24px;
+            padding: 14px 18px;
             border: none;
             border-radius: 14px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             font-family: 'Inter', sans-serif;
             letter-spacing: -0.2px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         .btn:active {
-            transform: scale(0.97);
+            transform: scale(0.96);
         }
 
         .btn-primary {
@@ -328,7 +566,7 @@
         }
 
         .btn-primary:hover:not(:disabled) {
-            box-shadow: 0 6px 20px rgba(122, 159, 53, 0.4);
+            box-shadow: 0 6px 24px rgba(122, 159, 53, 0.5);
             transform: translateY(-2px);
         }
 
@@ -353,105 +591,152 @@
             display: none !important;
         }
 
-        .access-section {
+        /* FLOATING ACCESS BUTTON */
+        .floating-access-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 8px 24px rgba(122, 159, 53, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 90;
+        }
+
+        .floating-access-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(122, 159, 53, 0.5);
+        }
+
+        .floating-access-btn:active {
+            transform: scale(0.95);
+        }
+
+        .access-badge-float {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--error);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg-dark);
+        }
+
+        /* BOTTOM SHEET */
+        .bottom-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bottom-sheet-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: var(--bg-card);
             border-radius: 24px 24px 0 0;
-            margin-top: 24px;
-            box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-bottom: none;
-        }
-
-        .access-header {
-            padding: 20px 24px;
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 85vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            background: var(--bg-elevated);
-            transition: background 0.2s;
+            flex-direction: column;
         }
 
-        .access-header:active {
-            background: var(--bg-card);
+        .bottom-sheet.active {
+            transform: translateY(0);
         }
 
-        .access-header-left {
+        .bottom-sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            margin: 12px auto 8px;
+            cursor: grab;
+        }
+
+        .bottom-sheet-handle:active {
+            cursor: grabbing;
+        }
+
+        .bottom-sheet-header {
+            padding: 12px 20px 16px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .bottom-sheet-title {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .access-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(122, 159, 53, 0.15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .bottom-sheet-title h3 {
             font-size: 20px;
+            font-weight: 800;
         }
 
-        .access-title-block h3 {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-
-        .access-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .access-badge {
-            background: var(--primary-green);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
+        .bottom-sheet-subtitle {
             font-size: 13px;
-            font-weight: 700;
-            min-width: 36px;
-            text-align: center;
-        }
-
-        .chevron {
-            font-size: 20px;
             color: var(--text-muted);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-left: 12px;
+            margin-top: 4px;
         }
 
-        .chevron.open {
-            transform: rotate(180deg);
-        }
-
-        .access-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .access-content.open {
-            max-height: 70vh;
+        .bottom-sheet-body {
+            flex: 1;
             overflow-y: auto;
+            padding: 16px 20px;
         }
 
+        .bottom-sheet-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        /* ACCESS LIST */
         .access-list {
-            padding: 0 24px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .access-item {
             background: var(--bg-elevated);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
+            border-radius: 14px;
+            padding: 14px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -473,14 +758,14 @@
         }
 
         .access-avatar {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, var(--primary-teal), var(--primary-green));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: white;
             flex-shrink: 0;
@@ -492,7 +777,7 @@
         }
 
         .access-name {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 4px;
@@ -501,10 +786,48 @@
             text-overflow: ellipsis;
         }
 
+        .access-meta {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .access-id {
-            font-size: 13px;
+            font-size: 11px;
             color: var(--text-muted);
             font-family: 'Monaco', monospace;
+        }
+
+        .access-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .access-type-badge.entrada {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--entrada);
+        }
+
+        .access-type-badge.salida {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--salida);
+        }
+
+        .access-event {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
         }
 
         .access-time-block {
@@ -513,44 +836,40 @@
         }
 
         .access-time {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--text-secondary);
             margin-bottom: 2px;
         }
 
         .access-date {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
         }
 
         .empty-state {
-            padding: 60px 24px;
+            padding: 40px 20px;
             text-align: center;
         }
 
         .empty-icon {
-            font-size: 64px;
+            font-size: 48px;
             opacity: 0.2;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .empty-text {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .empty-subtext {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
         }
 
-        .list-actions {
-            padding: 16px 24px;
-            border-top: 1px solid var(--border-color);
-        }
-
+        /* MODAL */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -663,6 +982,35 @@
             font-size: 14px;
             color: var(--text-muted);
             font-family: 'Monaco', monospace;
+            margin-bottom: 12px;
+        }
+
+        .modal-user-details {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .modal-detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .modal-detail-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .modal-detail-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
         .modal-message {
@@ -676,6 +1024,7 @@
             gap: 12px;
         }
 
+        /* SCROLLBAR */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -693,30 +1042,57 @@
             background: var(--primary-teal);
         }
 
+        /* MEDIA QUERIES */
         @media (max-width: 640px) {
-            .scanner-container {
-                padding: 16px;
+            .floating-config-card {
+                left: 12px;
+                right: 84px;
+                top: 148px;
+                padding: 8px 10px;
             }
 
-            .header-top {
-                padding: 16px 20px 12px;
+            .floating-config-card.expanded {
+                left: 16px;
+                right: 16px;
             }
 
-            .logo-circle {
-                width: 48px;
-                height: 48px;
+            .floating-status-indicator {
+                right: 12px;
+                top: 148px;
+                width: 64px;
+                height: 64px;
             }
 
-            .logo-dna {
-                font-size: 28px;
+            .floating-status-indicator span:first-child {
+                font-size: 26px;
             }
 
-            .header-title h1 {
-                font-size: 18px;
+            .floating-status-indicator span:last-child {
+                font-size: 9px;
             }
 
-            .modal {
-                padding: 24px;
+            .floating-access-btn {
+                width: 60px;
+                height: 60px;
+                bottom: 16px;
+                right: 16px;
+                font-size: 24px;
+            }
+
+            .scanner-body {
+                padding: 12px;
+                padding-top: 90px;
+                padding-bottom: 90px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .config-header-title h3 {
+                font-size: 12px;
+            }
+
+            .config-header-subtitle {
+                font-size: 9px;
             }
         }
     </style>
@@ -752,81 +1128,135 @@
         </header>
 
         <main class="scanner-container">
-            <div class="scanner-card">
-                <div class="scanner-header">
-                    <div class="scanner-status-badge inactive" id="statusBadge">
-                        <div class="status-indicator"></div>
-                        <span id="statusText">Listo para Escanear</span>
-                    </div>
-                    <h2>Escaneo de Credenciales</h2>
-                    <p>Apunta la cámara hacia el código QR del gafete</p>
-                </div>
-
-                <div class="scanner-body">
-                    <div class="scanner-placeholder" id="placeholder">
-                        <div class="placeholder-icon">📱</div>
-                        <div class="placeholder-text">Cámara Inactiva</div>
-                        <div class="placeholder-subtext">
-                            Presiona el botón para iniciar el escaneo
-                        </div>
-                    </div>
-
-                    <div class="camera-wrapper hidden" id="cameraWrapper">
-                        <div id="reader"></div>
-                        <div class="camera-overlay">
-                            <div class="camera-corner tl"></div>
-                            <div class="camera-corner tr"></div>
-                            <div class="camera-corner bl"></div>
-                            <div class="camera-corner br"></div>
-                        </div>
-                    </div>
-
-                    <div class="scanner-controls">
-                        <button class="btn btn-primary" id="btnStart">
-                            <span>📸</span>
-                            Activar Escáner
-                        </button>
-                        <button class="btn btn-secondary hidden" id="btnStop">
-                            <span>⏹</span>
-                            Detener
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="access-section">
-                <div class="access-header" id="accessHeader">
-                    <div class="access-header-left">
-                        <div class="access-icon">📋</div>
-                        <div class="access-title-block">
-                            <h3>Registro de Accesos</h3>
-                            <div class="access-subtitle">Historial de escaneos</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                        <div class="access-badge" id="accessCount">0</div>
-                        <div class="chevron" id="chevron">▼</div>
+            <div class="scanner-body">
+                <div class="scanner-placeholder" id="placeholder">
+                    <div class="placeholder-icon">📱</div>
+                    <div class="placeholder-text">Cámara Inactiva</div>
+                    <div class="placeholder-subtext">
+                        Configura el evento y presiona iniciar
                     </div>
                 </div>
 
-                <div class="access-content" id="accessContent">
-                    <div class="empty-state" id="emptyState">
-                        <div class="empty-icon">📭</div>
-                        <div class="empty-text">No hay registros</div>
-                        <div class="empty-subtext">
-                            Los accesos escaneados aparecerán aquí
-                        </div>
+                <div class="camera-wrapper hidden" id="cameraWrapper">
+                    <div id="reader"></div>
+                    <div class="camera-overlay">
+                        <div class="camera-corner tl"></div>
+                        <div class="camera-corner tr"></div>
+                        <div class="camera-corner bl"></div>
+                        <div class="camera-corner br"></div>
                     </div>
-                    <div class="access-list hidden" id="accessList"></div>
-                    <div class="list-actions hidden" id="listActions">
-                        <button class="btn btn-secondary" id="btnClear">
-                            <span>🗑️</span>
-                            Limpiar Registros
-                        </button>
-                    </div>
+                </div>
+
+                <div class="scanner-controls">
+                    <button class="btn btn-primary" id="btnStart">
+                        <span>📸</span>
+                        Activar Escáner
+                    </button>
+                    <button class="btn btn-secondary hidden" id="btnStop">
+                        <span>⏹</span>
+                        Detener
+                    </button>
                 </div>
             </div>
         </main>
+
+        <!-- Overlay para configuración -->
+        <div class="config-overlay" id="configOverlay"></div>
+
+        <!-- Card flotante de configuración -->
+        <div class="floating-config-card minimized" id="floatingConfig">
+            <div class="config-header" id="configHeader">
+                <div class="config-header-left">
+                    <span class="config-icon">⚙️</span>
+                    <div class="config-header-title" id="configHeaderTitle">
+                        <h3>Configuración</h3>
+                        <div class="config-header-subtitle" id="configSubtitle">Toca para configurar</div>
+                    </div>
+                </div>
+                <div class="config-toggle-btn" id="configToggleBtn">▼</div>
+            </div>
+            <div class="config-body" id="configBody">
+                <div class="config-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="eventoSelect">Evento</label>
+                        <select class="form-select" id="eventoSelect">
+                            <option value="">Seleccionar evento...</option>
+                            <option value="congreso-principal">🎯 Congreso Principal</option>
+                            <option value="taller-nutricion-deportiva">💪 Taller: Nutrición Deportiva</option>
+                            <option value="taller-alimentacion-pediatrica">👶 Taller: Alimentación Pediátrica</option>
+                            <option value="taller-nutricion-clinica">🏥 Taller: Nutrición Clínica</option>
+                            <option value="seminario-investigacion">🔬 Seminario: Investigación Nutricional</option>
+                            <option value="workshop-suplementacion">💊 Workshop: Suplementación</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Acceso</label>
+                        <div class="toggle-group">
+                            <div class="toggle-option">
+                                <input type="radio" name="tipoAcceso" id="entrada" value="entrada" checked>
+                                <label for="entrada" class="toggle-label entrada-label">
+                                    <span>🔵</span>
+                                    Entrada
+                                </label>
+                            </div>
+                            <div class="toggle-option">
+                                <input type="radio" name="tipoAcceso" id="salida" value="salida">
+                                <label for="salida" class="toggle-label salida-label">
+                                    <span>🟣</span>
+                                    Salida
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicador flotante de estado -->
+        <div class="floating-status-indicator entrada" id="statusIndicator">
+            <span id="statusIcon">🔵</span>
+            <span id="statusLabel">Entrada</span>
+        </div>
+
+        <!-- Botón flotante para ver registros -->
+        <button class="floating-access-btn" id="btnViewAccess">
+            📋
+            <span class="access-badge-float hidden" id="accessBadgeFloat">0</span>
+        </button>
+
+        <!-- Bottom Sheet -->
+        <div class="bottom-sheet-overlay" id="bottomSheetOverlay"></div>
+        <div class="bottom-sheet" id="bottomSheet">
+            <div class="bottom-sheet-handle" id="bottomSheetHandle"></div>
+            <div class="bottom-sheet-header">
+                <div class="bottom-sheet-title">
+                    <span style="font-size: 28px;">📋</span>
+                    <div>
+                        <h3>Registro de Accesos</h3>
+                        <div class="bottom-sheet-subtitle">
+                            <span id="accessCountModal">0</span> registros totales
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-sheet-body">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">📭</div>
+                    <div class="empty-text">No hay registros</div>
+                    <div class="empty-subtext">
+                        Los accesos escaneados aparecerán aquí
+                    </div>
+                </div>
+                <div class="access-list hidden" id="accessList"></div>
+            </div>
+            <div class="bottom-sheet-footer hidden" id="listActions">
+                <button class="btn btn-secondary" id="btnClear" style="width: 100%;">
+                    <span>🗑️</span>
+                    Limpiar Registros
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal -->
@@ -850,24 +1280,34 @@
         let html5QrCode = null;
         let scanning = false;
         let accessList = [];
-        let listOpen = false;
+        let configExpanded = false;
 
         // Elementos del DOM
         const btnStart = document.getElementById('btnStart');
         const btnStop = document.getElementById('btnStop');
         const btnClear = document.getElementById('btnClear');
         const btnCloseModal = document.getElementById('btnCloseModal');
-        const accessHeader = document.getElementById('accessHeader');
+        const btnViewAccess = document.getElementById('btnViewAccess');
+        const floatingConfig = document.getElementById('floatingConfig');
+        const configOverlay = document.getElementById('configOverlay');
+        const configHeader = document.getElementById('configHeader');
+        const configHeaderTitle = document.getElementById('configHeaderTitle');
+        const configBody = document.getElementById('configBody');
+        const configToggleBtn = document.getElementById('configToggleBtn');
+        const configSubtitle = document.getElementById('configSubtitle');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusLabel = document.getElementById('statusLabel');
+        const bottomSheet = document.getElementById('bottomSheet');
+        const bottomSheetOverlay = document.getElementById('bottomSheetOverlay');
+        const bottomSheetHandle = document.getElementById('bottomSheetHandle');
         const placeholder = document.getElementById('placeholder');
         const cameraWrapper = document.getElementById('cameraWrapper');
-        const statusBadge = document.getElementById('statusBadge');
-        const statusText = document.getElementById('statusText');
-        const accessContent = document.getElementById('accessContent');
-        const chevron = document.getElementById('chevron');
         const emptyState = document.getElementById('emptyState');
         const accessListEl = document.getElementById('accessList');
         const listActions = document.getElementById('listActions');
-        const accessCount = document.getElementById('accessCount');
+        const accessBadgeFloat = document.getElementById('accessBadgeFloat');
+        const accessCountModal = document.getElementById('accessCountModal');
         const totalRegistros = document.getElementById('totalRegistros');
         const estadoIndicador = document.getElementById('estadoIndicador');
         const ultimoAcceso = document.getElementById('ultimoAcceso');
@@ -877,6 +1317,93 @@
         const modalIcon = document.getElementById('modalIcon');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
+        const eventoSelect = document.getElementById('eventoSelect');
+
+        // Nombres de eventos
+        const eventosNombres = {
+            'congreso-principal': 'Congreso Principal',
+            'taller-nutricion-deportiva': 'Taller: Nutrición Deportiva',
+            'taller-alimentacion-pediatrica': 'Taller: Alimentación Pediátrica',
+            'taller-nutricion-clinica': 'Taller: Nutrición Clínica',
+            'seminario-investigacion': 'Seminario: Investigación',
+            'workshop-suplementacion': 'Workshop: Suplementación'
+        };
+
+        // Función para toggle config card
+        function toggleConfig() {
+            configExpanded = !configExpanded;
+            if (configExpanded) {
+                // Expandir
+                floatingConfig.classList.remove('minimized');
+                floatingConfig.classList.add('expanded');
+                configBody.classList.remove('minimized');
+                configBody.classList.add('expanded');
+                configHeader.classList.add('expanded');
+                configHeaderTitle.classList.add('expanded');
+                configOverlay.classList.add('active');
+                configToggleBtn.textContent = '✕';
+                document.body.style.overflow = 'hidden';
+            } else {
+                // Minimizar
+                floatingConfig.classList.add('minimized');
+                floatingConfig.classList.remove('expanded');
+                configBody.classList.add('minimized');
+                configBody.classList.remove('expanded');
+                configHeader.classList.remove('expanded');
+                configHeaderTitle.classList.remove('expanded');
+                configOverlay.classList.remove('active');
+                configToggleBtn.textContent = '▼';
+                document.body.style.overflow = '';
+                updateConfigSubtitle();
+            }
+        }
+
+        // Función para actualizar el subtítulo del config
+        function updateConfigSubtitle() {
+            const evento = eventoSelect.value;
+            if (evento && !configExpanded) {
+                const eventoNombre = eventosNombres[evento] || 'Evento seleccionado';
+                configSubtitle.textContent = eventoNombre;
+            } else {
+                configSubtitle.textContent = 'Toca para configurar';
+            }
+        }
+
+        // Función para actualizar el indicador de estado flotante
+        function updateStatusIndicator() {
+            const tipoAcceso = getTipoAcceso();
+            if (tipoAcceso === 'entrada') {
+                statusIndicator.className = 'floating-status-indicator entrada';
+                statusIcon.textContent = '🔵';
+                statusLabel.textContent = 'Entrada';
+            } else {
+                statusIndicator.className = 'floating-status-indicator salida';
+                statusIcon.textContent = '🟣';
+                statusLabel.textContent = 'Salida';
+            }
+        }
+
+        // Función para obtener tipo de acceso seleccionado
+        function getTipoAcceso() {
+            return document.querySelector('input[name="tipoAcceso"]:checked').value;
+        }
+
+        // Función para obtener evento seleccionado
+        function getEventoSeleccionado() {
+            return eventoSelect.value;
+        }
+
+        // Deshabilitar controles durante escaneo
+        function setConfigEnabled(enabled) {
+            eventoSelect.disabled = !enabled;
+            document.querySelectorAll('input[name="tipoAcceso"]').forEach(input => {
+                input.disabled = !enabled;
+            });
+            if (!enabled && configExpanded) {
+                // Si está expandido, cerrarlo
+                toggleConfig();
+            }
+        }
 
         // Función para validar QR
         function validateQRData(data) {
@@ -902,11 +1429,18 @@
 
         // Función para iniciar escaneo
         function startScanning() {
+            const eventoSeleccionado = getEventoSeleccionado();
+            
+            if (!eventoSeleccionado) {
+                alert('Por favor selecciona un evento antes de iniciar el escáner');
+                return;
+            }
+
             html5QrCode = new Html5Qrcode("reader");
 
             const config = {
                 fps: 10,
-                qrbox: { width: 250, height: 250 },
+                qrbox: { width: 200, height: 200 },
                 aspectRatio: 1.0
             };
 
@@ -918,8 +1452,14 @@
 
                     if (validation.valid) {
                         const now = new Date();
+                        const tipoAcceso = getTipoAcceso();
+                        const evento = getEventoSeleccionado();
+                        
                         const accessData = {
                             ...validation.data,
+                            tipoAcceso: tipoAcceso,
+                            evento: evento,
+                            eventoNombre: eventosNombres[evento] || evento,
                             timestamp: now.toISOString(),
                             time: now.toLocaleTimeString('es-MX', {
                                 hour: '2-digit',
@@ -959,10 +1499,12 @@
                 cameraWrapper.classList.remove('hidden');
                 btnStart.classList.add('hidden');
                 btnStop.classList.remove('hidden');
-                statusBadge.classList.remove('inactive');
-                statusBadge.classList.add('active');
-                statusText.textContent = 'Escáner Activo';
                 estadoIndicador.textContent = '●';
+                
+                // Animar el status indicator
+                statusIndicator.style.animation = 'pulse 2s infinite';
+                
+                setConfigEnabled(false);
             }).catch((err) => {
                 console.error("Error:", err);
                 alert("No se pudo acceder a la cámara. Verifica los permisos.");
@@ -978,10 +1520,12 @@
                     cameraWrapper.classList.add('hidden');
                     btnStart.classList.remove('hidden');
                     btnStop.classList.add('hidden');
-                    statusBadge.classList.remove('active');
-                    statusBadge.classList.add('inactive');
-                    statusText.textContent = 'Listo para Escanear';
                     estadoIndicador.textContent = '○';
+                    
+                    // Detener animación
+                    statusIndicator.style.animation = '';
+                    
+                    setConfigEnabled(true);
                     html5QrCode = null;
                 }).catch(console.error);
             }
@@ -990,15 +1534,19 @@
         // Función para actualizar UI
         function updateUI() {
             totalRegistros.textContent = accessList.length;
-            accessCount.textContent = accessList.length;
+            accessCountModal.textContent = accessList.length;
 
+            // Actualizar badge flotante
             if (accessList.length > 0) {
+                accessBadgeFloat.textContent = accessList.length;
+                accessBadgeFloat.classList.remove('hidden');
                 ultimoAcceso.textContent = accessList[0].time.slice(0, 5);
                 emptyState.classList.add('hidden');
                 accessListEl.classList.remove('hidden');
                 listActions.classList.remove('hidden');
                 renderAccessList();
             } else {
+                accessBadgeFloat.classList.add('hidden');
                 ultimoAcceso.textContent = '--:--';
                 emptyState.classList.remove('hidden');
                 accessListEl.classList.add('hidden');
@@ -1012,11 +1560,24 @@
             accessList.forEach((access) => {
                 const item = document.createElement('div');
                 item.className = 'access-item';
+                
+                const tipoAccesoClass = access.tipoAcceso === 'entrada' ? 'entrada' : 'salida';
+                const tipoAccesoIcon = access.tipoAcceso === 'entrada' ? '➡️' : '⬅️';
+                const tipoAccesoText = access.tipoAcceso === 'entrada' ? 'Entrada' : 'Salida';
+                
                 item.innerHTML = `
                     <div class="access-avatar">${getInitials(access.nombre)}</div>
                     <div class="access-info">
                         <div class="access-name">${access.nombre}</div>
-                        <div class="access-id">ID: ${access.id}</div>
+                        <div class="access-meta">
+                            <div class="access-id">ID: ${access.id}</div>
+                            <div class="access-type-badge ${tipoAccesoClass}">
+                                ${tipoAccesoIcon} ${tipoAccesoText}
+                            </div>
+                        </div>
+                        <div class="access-event">
+                            📍 ${access.eventoNombre}
+                        </div>
                     </div>
                     <div class="access-time-block">
                         <div class="access-time">${access.time}</div>
@@ -1035,11 +1596,25 @@
                 modalIconWrapper.className = 'modal-icon-wrapper success';
                 modalIcon.className = 'modal-icon success';
                 modalIcon.textContent = '✓';
+                
+                const tipoAccesoText = data.tipoAcceso === 'entrada' ? 'Entrada Registrada' : 'Salida Registrada';
+                const tipoAccesoIcon = data.tipoAcceso === 'entrada' ? '🔵' : '🟣';
+                
                 modalTitle.textContent = '¡Acceso Registrado!';
                 modalBody.innerHTML = `
                     <div class="modal-user-card">
                         <div class="modal-user-name">${data.nombre}</div>
                         <div class="modal-user-id">ID: ${data.id}</div>
+                        <div class="modal-user-details">
+                            <div class="modal-detail-item">
+                                <div class="modal-detail-label">Tipo</div>
+                                <div class="modal-detail-value">${tipoAccesoIcon} ${tipoAccesoText}</div>
+                            </div>
+                            <div class="modal-detail-item">
+                                <div class="modal-detail-label">Evento</div>
+                                <div class="modal-detail-value">${data.eventoNombre}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-message">Registro completado exitosamente</div>
                 `;
@@ -1059,16 +1634,18 @@
             modalOverlay.classList.add('hidden');
         }
 
-        // Función para toggle lista
-        function toggleList() {
-            listOpen = !listOpen;
-            if (listOpen) {
-                accessContent.classList.add('open');
-                chevron.classList.add('open');
-            } else {
-                accessContent.classList.remove('open');
-                chevron.classList.remove('open');
-            }
+        // Función para mostrar bottom sheet
+        function showBottomSheet() {
+            bottomSheetOverlay.classList.add('active');
+            bottomSheet.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Función para cerrar bottom sheet
+        function closeBottomSheet() {
+            bottomSheetOverlay.classList.remove('active');
+            bottomSheet.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         // Función para limpiar lista
@@ -1084,15 +1661,91 @@
         btnStop.addEventListener('click', stopScanning);
         btnClear.addEventListener('click', clearList);
         btnCloseModal.addEventListener('click', closeModal);
-        accessHeader.addEventListener('click', toggleList);
+        btnViewAccess.addEventListener('click', showBottomSheet);
+        configHeader.addEventListener('click', toggleConfig);
+        statusIndicator.addEventListener('click', toggleConfig);
+        
+        // Cerrar config al hacer click en overlay
+        configOverlay.addEventListener('click', () => {
+            if (configExpanded) {
+                toggleConfig();
+            }
+        });
+        
+        // Event listeners para tipo de acceso
+        document.querySelectorAll('input[name="tipoAcceso"]').forEach(input => {
+            input.addEventListener('change', updateStatusIndicator);
+        });
+
+        // Event listener para cambio de evento
+        eventoSelect.addEventListener('change', updateConfigSubtitle);
+        
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 closeModal();
             }
         });
 
+        // Event listeners para bottom sheet
+        bottomSheetOverlay.addEventListener('click', closeBottomSheet);
+        
+        // Swipe down para cerrar bottom sheet
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        bottomSheetHandle.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+        });
+
+        bottomSheetHandle.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            if (diff > 0) {
+                bottomSheet.style.transform = `translateY(${diff}px)`;
+            }
+        });
+
+        bottomSheetHandle.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = currentY - startY;
+            if (diff > 100) {
+                closeBottomSheet();
+            }
+            bottomSheet.style.transform = '';
+        });
+
+        // También soportar mouse para testing
+        bottomSheetHandle.addEventListener('mousedown', (e) => {
+            startY = e.clientY;
+            isDragging = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentY = e.clientY;
+            const diff = currentY - startY;
+            if (diff > 0) {
+                bottomSheet.style.transform = `translateY(${diff}px)`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = currentY - startY;
+            if (diff > 100) {
+                closeBottomSheet();
+            }
+            bottomSheet.style.transform = '';
+        });
+
         // Inicializar UI
         updateUI();
+        updateStatusIndicator();
     </script>
 </body>
 </html>
